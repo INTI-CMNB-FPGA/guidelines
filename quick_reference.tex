@@ -1,0 +1,279 @@
+\documentclass{article}
+\usepackage[a4paper,margin=2cm,landscape]{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{dirtree}  % texlive-generic-extra
+
+%\linespread{0.5}
+
+% Black section* with white text
+\usepackage[explicit]{titlesec}
+\usepackage{xcolor}
+\titleformat{name=\section,numberless}{\normalfont\Large\bfseries}{}{0em}{\colorbox{black}{
+  \parbox{\dimexpr\textwidth/3-8\fboxsep}{\textcolor{white}{#1}}
+}}
+% Vertical lines between columns
+\setlength{\columnseprule}{1pt}
+\def\columnseprulecolor{\color{black}}
+
+% Header and footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% Fixed Header parts
+\lhead{CMNB - Quick Reference} % No left header
+\rhead{Last update: 2017-05-25}
+
+% Fixed Footer parts
+\lfoot{https://github.com/INTI-CMNB-FPGA/guidelines}
+\newcommand{\licenseurl}  {http://creativecommons.org/licenses/by/4.0/}
+\newcommand{\licensedesc} {Creative Commons Attribution 4.0 International License}
+\rfoot{This work is licensed under a \href{\licenseurl}{\licensedesc}.}
+\cfoot{} % No central footer
+% -------------------------------------------------------------------------------------------------
+\begin{document}
+% -------------------------------------------------------------------------------------------------
+\chead{FPGA Project Conventions}
+
+\begin{multicols}{3}
+%    \dirtree{%
+%      .1 project\_name.
+%      .2 core.
+%      .3 tb.
+%      .2 doc.
+%      .2 info.
+%      .2 FPGA.
+%      .2 helpers.
+%      .2 hardware.
+%      .2 softdware.
+%      .2 firmware.
+%      .2 verification.
+%    }
+  \section*{Directory structure}
+    Mandatory:
+    \begin{itemize}
+      \item \textit{core:} HDL code of the core
+      \item \textit{core/tb:} HDL code of the testbench
+      \item \textit{doc:} generated documentation, such as specifications, manuals, notes, block diagrams, etc
+    \end{itemize}
+    Common used:
+    \begin{itemize}
+      \item \textit{info:} downloaded documentation, such as standards, application notes, datasheets, example code, etc
+      \item \textit{FPGA:} synthesis projects distributed in directories called as \textit{boardname\_corename}
+      \item \textit{helpers:} developed scripts
+    \end{itemize}
+    Others:
+    \begin{itemize}
+      \item \textit{hardware:} schematics and PCBs
+      \item \textit{software:} developed for the project
+      \item \textit{firmware:} code for processors
+      \item \textit{verification:} formal verification
+    \end{itemize}
+    And needed git submodules such as \textit{fpga\_lib} in the root directory
+  \section*{Files}
+    \begin{itemize}
+      \item Add a README.md (Markdown) at least in main directories
+      \item README.md in the root directory must explain the project
+      \item README.md in core directory must explain main blocks and how to use quickly
+      \item Add Makefiles, Bash scripts or at least explain in README.md how to run simulation and synthesis
+      \item Makefile in root directory must provide a target to analyze, compile and simulate all the project
+      \item Add AUTHORS in the root directory, with name, email and what they work on
+    \end{itemize}
+  \section*{Names}
+    \begin{itemize}
+      \item Coherent and descriptive
+      \item Avoid spaces and especial symbols (be careful with downloaded files)
+      \item Do not use dates and version numbers
+    \end{itemize}
+  \section*{Considerations}
+    \begin{itemize}
+      \item For complex IP cores with multiple layers use several directories inside \textit{core}
+            (with its own \textit{tb})
+      \item Make one Library per project
+      \item Make one Package per layer
+      \item Use separated Packages for test if needed
+      \item Automate with Makefiles and/or Bash scripts
+    \end{itemize}
+  \section*{Control version}
+    \begin{itemize}
+      \item Use Git as control version system
+      \item Logs format:
+        \begin{lstlisting}[]
+Mandatory short description
+
+Optional long description if
+clarification is needed. Here
+you can use * as bullets to
+separate concepts.
+        \end{lstlisting}
+      \item Avoid multiple versions, use tags instead
+      \item Use branches to add new features
+      \item Try to use text formats also for documentation (LaTeX, flat of LibreOffice)
+      \item Avoid generated and binary files (exception: production bitstream, delivered
+            documentation, manufactured gerbers)
+      \item Try to avoid name changes (\textit{git mv}), but if needed be clear in the log file
+            (do a commit only indicating old names and new names)
+    \end{itemize}
+\end{multicols}
+% -------------------------------------------------------------------------------------------------
+\newpage
+\chead{HDL Conventions}
+
+\begin{multicols}{3}
+  \section*{General}
+    \begin{itemize}
+      \item Use VHDL 93 (default) or Verilog 2001 (if justified)
+      \item English for all (code, names, comments, doc, etc)
+      \item Make useful comments
+      \item Use meaningful names
+      \item Never use reserved words as name
+      \item Separate words with underscores
+      \item Use positive (active high) logic if feasible
+    \end{itemize}
+  \section*{Files and Units}
+    \begin{itemize}
+      \item File extensions:
+        \begin{itemize}
+          \item \textit{.vhdl} for VHDL
+          \item \textit{.v} for Verilog
+          \item \textit{.vh} for Verilog Header
+          \item \textit{.sv} for System Verilog
+        \end{itemize}
+      \item Use \textit{example.vhdl} for a Entity called \textit{example} and its Architecture[s]
+      \item Use \textit{example.v} for a Module called \textit{example}
+      \item Use \textit{example\_pkg.vhdl} for a Package called \textit{example}
+            [and its Package Body]
+      \item Use the suffix \textit{\_tb} for testbenches (file and Entity/Module names)
+      \item Use \textit{example\_cfg.vhdl} for VHDL configurations (not commonly used)
+      \item Architecture names:
+        \begin{itemize}
+          \item \textit{Structural} (instantiations), \textit{RTL}, \textit{Behav} (simulation)
+          \item \textit{Power}, \textit{Area}, \textit{Speed} (if optimized for)
+          \item Vendor or family names (if optimized for)
+        \end{itemize}
+      \item Considerations:
+        \begin{itemize}
+          \item Only one Entity and all its Architecture[s] per file
+          \item Only one Module per file
+          \item Only one Package [and its Package Body] per file
+        \end{itemize}
+    \end{itemize}
+  \section*{Case}
+    \begin{itemize}
+      \item Lowercase is the default
+      \item Uppercase for constants, generics/params and enumerations
+      \item Mixed case for entity/module, architecture, packages and libraries names
+    \end{itemize}
+  \section*{Indentation}
+    \begin{itemize}
+      \item 3 spaces is the default
+      \item 4 spaces with \textit{for}
+      \item Never use tabs
+      \item Line length less than 100 characters when feasible
+      \item Use a space between a language statement and its bracket
+      \item No space between names and its bracket
+      \item Blocks:
+        \begin{lstlisting}[language=vhdl]
+if (...) open_symbol
+   something
+close_symbol else open_symbol
+   something
+close_symbol
+        \end{lstlisting}
+    \end{itemize}
+  \section*{Header}
+    \begin{lstlisting}[language=vhdl]
+--
+-- [Long] name of the core
+--
+-- Author(s):
+-- * Name
+--
+-- Copyright Notice
+-- License Notice
+--
+-- Description:
+-- Long functional description.
+--
+    \end{lstlisting}
+  \section*{Libraries (VHDL)}
+    \begin{itemize}
+      \item Only include one Library or Package per line
+      \item Avoid to use deprecated IEEE libraries (Synopsis, Cadence, Mentor)
+      \item You normally will use:
+        \begin{lstlisting}[language=vhdl]
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+        \end{lstlisting}
+    \end{itemize}
+  \section*{Port declaration}
+    \begin{itemize}
+      \item One port per line
+      \item Comment \textbf{each} port
+      \item Use only std\_logic and std\_logic\_vector (un/signed when meaningful)
+      \item Records could be use in submodules (separated inputs and outputs)
+    \end{itemize}
+  \section*{Suffixes}
+    \begin{itemize}
+      \item \textit{\_i} input port
+      \item \textit{\_o} output port
+      \item \textit{\_io} bidirectional port
+      \item \textit{\_n\_i} active low input port
+      \item \textit{\_n\_o} active low output port
+      \item \textit{\_r} internal register
+      \item \textit{\_t} defined type
+    \end{itemize}
+  \section*{Labels}
+    \begin{itemize}
+      \item Use \textit{p\_} for processes
+      \item Use \textit{i\_} for instantiations
+      \item Use \textit{g\_} for generates
+      \item Put the label in the same line of its target
+      \item Use the full \textit{end} form
+    \end{itemize}
+  \section*{Common abbreviations}
+    \begin{itemize}
+      \item \textit{ack:} acknowledge
+      \item \textit{addr:} address
+      \item \textit{clk:} clock
+      \item \textit{cnt, count:} counter
+      \item \textit{ctrl:} control
+      \item \textit{ena:} enable
+      \item \textit{idx:} index
+      \item \textit{irq:} interrupt
+      \item \textit{num:} number (of)
+      \item \textit{ptr:} pointer
+      \item \textit{re, rena:} read enable
+      \item \textit{rd:} read
+      \item \textit{rst:} reset
+      \item \textit{stb:} strobe
+      \item \textit{we, wena:} write enable
+      \item \textit{wr:} write
+    \end{itemize}
+\end{multicols}
+
+% FSM one process
+% * enumeration/parameters
+% Clock starvation
+% Component, functions and procedures in package
+% Signal declaration. No global, no shared
+% Variables for intermediate values
+
+% -------------------------------------------------------------------------------------------------
+%\newpage
+%\chead{HDL Conventions}
+
+%\begin{multicols}{3}
+%  \section*{Ranges}
+%    \begin{itemize}
+%      \item Use a range for integers and subtypes (synthesis)
+%      \item Use downto for std\_logic\_vector and subtypes
+%    \end{itemize}
+%\end{multicols}
+
+% Full sync
+
+% -------------------------------------------------------------------------------------------------
+\end{document}
